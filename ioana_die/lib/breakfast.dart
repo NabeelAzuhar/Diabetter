@@ -6,6 +6,7 @@ import 'add_entry.dart';
 
 class BreakfastPage extends StatelessWidget {
   final List dateList = UserData.userData.keys.toList();
+  final PageController pageController = PageController();
 
   BreakfastPage({Key? key}) : super(key: key);
 
@@ -26,32 +27,16 @@ class BreakfastPage extends StatelessWidget {
                     CupertinoPageRoute(builder: (context) => const AddEntry()));
               }),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding:
-                const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
-            child: Center(
-                child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 5),
-                  child: Text(
-                    'Breakfast',
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.black),
-                  ),
-                ),
-                SizedBox(
-                  height: 600,
-                  child: ListView(
-                    children: userCardsList(dateList),
-                  ),
-                ),
-              ],
-            )),
-          ),
+        child: PageView(
+          controller: pageController,
+          children: [
+            mealPage('Breakfast', dateList),
+            mealPage('Morning Tea', dateList),
+            mealPage('Lunch', dateList),
+            mealPage('Supper', dateList),
+            mealPage('Dinner', dateList),
+            mealPage('Dessert', dateList),
+          ],
         ));
   }
 }
@@ -177,7 +162,11 @@ TableRow userDataColumns(time, sugar, insulin, carbs, comment) {
     Center(child: Text(sugar)),
     Center(child: Text(insulin)),
     Center(child: Text(carbs)),
-    Center(child: Text(comment, textAlign: TextAlign.center,)),
+    Center(
+        child: Text(
+      comment,
+      textAlign: TextAlign.center,
+    )),
   ]);
 }
 
@@ -245,4 +234,33 @@ List<Widget> userCardsList(List dateList) {
   }
   cardList = cardList.reversed.toList();
   return cardList;
+}
+
+SafeArea mealPage(String meal, List listOfDates) {
+  return SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
+      child: Center(
+          child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 5),
+            child: Text(
+              meal,
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: CupertinoColors.black),
+            ),
+          ),
+          SizedBox(
+            height: 600,
+            child: ListView(
+              children: userCardsList(listOfDates),
+            ),
+          ),
+        ],
+      )),
+    ),
+  );
 }
