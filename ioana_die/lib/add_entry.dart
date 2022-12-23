@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:you_wanna_live/breakfast.dart';
+
+import 'user_data.dart';
 
 class AddEntry extends StatefulWidget {
   const AddEntry({Key? key}) : super(key: key);
@@ -10,6 +13,10 @@ class AddEntry extends StatefulWidget {
 
 class _AddEntryState extends State<AddEntry> {
   DateTime dateTime = DateTime.now();
+  final bloodSugarController = TextEditingController();
+  final insulinController = TextEditingController();
+  final carbsController = TextEditingController();
+  final commentController = TextEditingController();
 
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
@@ -93,6 +100,32 @@ class _AddEntryState extends State<AddEntry> {
     } else {
       return hour.toString();
     }
+  }
+
+  void addNewEntry() {
+    String date = '${dateTime.day}${dateTime.month}${dateTime.year}';
+    String time = '${dateTime.hour}:${dateTime.minute}';
+    String bloodSugar = bloodSugarController.text;
+    String insulin = insulinController.text;
+    String carbs = carbsController.text;
+    String comment = commentController.text;
+
+    UserData.userData.addEntries({
+      date: [time, bloodSugar, insulin, carbs, comment]
+    }.entries);
+
+    Navigator.push(
+        context, CupertinoPageRoute(builder: (context) => BreakfastPage()));
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    bloodSugarController.dispose();
+    insulinController.dispose();
+    carbsController.dispose();
+    commentController.dispose();
+    super.dispose();
   }
 
   @override
@@ -188,7 +221,7 @@ class _AddEntryState extends State<AddEntry> {
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
+                          children: [
                             Text('Blood Sugar',
                                 style: TextStyle(
                                   fontSize: 20,
@@ -200,6 +233,7 @@ class _AddEntryState extends State<AddEntry> {
                               child: SizedBox(
                                 width: 100,
                                 child: CupertinoTextField(
+                                  controller: bloodSugarController,
                                   keyboardType: TextInputType.number,
                                   maxLength: 4,
                                   style: TextStyle(fontSize: 18),
@@ -210,7 +244,7 @@ class _AddEntryState extends State<AddEntry> {
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
+                          children: [
                             Text('Insulin',
                                 style: TextStyle(
                                   fontSize: 20,
@@ -222,6 +256,7 @@ class _AddEntryState extends State<AddEntry> {
                               child: SizedBox(
                                 width: 100,
                                 child: CupertinoTextField(
+                                  controller: insulinController,
                                   keyboardType: TextInputType.number,
                                   maxLength: 4,
                                   style: TextStyle(fontSize: 18),
@@ -232,7 +267,7 @@ class _AddEntryState extends State<AddEntry> {
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
+                          children: [
                             Text('Carbohydrates',
                                 style: TextStyle(
                                   fontSize: 20,
@@ -244,6 +279,7 @@ class _AddEntryState extends State<AddEntry> {
                               child: SizedBox(
                                 width: 100,
                                 child: CupertinoTextField(
+                                  controller: carbsController,
                                   keyboardType: TextInputType.number,
                                   maxLength: 4,
                                   style: TextStyle(fontSize: 18),
@@ -260,9 +296,10 @@ class _AddEntryState extends State<AddEntry> {
                                 fontWeight: FontWeight.bold,
                               )),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 100,
                           child: CupertinoTextField(
+                            controller: commentController,
                             keyboardType: TextInputType.multiline,
                             style: TextStyle(fontSize: 18),
                           ),
@@ -284,7 +321,7 @@ class _AddEntryState extends State<AddEntry> {
                           color: CupertinoColors.white,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () => addNewEntry(),
                     ),
                   ),
                 )
