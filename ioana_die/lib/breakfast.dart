@@ -177,7 +177,7 @@ TableRow userDataColumns(time, sugar, insulin, carbs, comment) {
     Center(child: Text(sugar)),
     Center(child: Text(insulin)),
     Center(child: Text(carbs)),
-    Center(child: Text(comment)),
+    Center(child: Text(comment, textAlign: TextAlign.center,)),
   ]);
 }
 
