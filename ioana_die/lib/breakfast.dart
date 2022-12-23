@@ -13,11 +13,12 @@ class BreakfastPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          backgroundColor: CupertinoColors.systemGrey.withOpacity(0.5),
+          backgroundColor: CupertinoColors.systemGrey.withOpacity(1),
           middle: const Text(
             'Ioanadie?',
             style: TextStyle(fontSize: 20),
           ),
+          automaticallyImplyLeading: false,
           trailing: CupertinoButton(
               child: const Icon(CupertinoIcons.add),
               onPressed: () {
@@ -242,5 +243,6 @@ List<Widget> userCardsList(List dateList) {
         // Text('Hi'));
         dataCard(dateList[i], UserData.userData[dateList[i]] ?? ['error']));
   }
+  cardList = cardList.reversed.toList();
   return cardList;
 }

@@ -94,25 +94,31 @@ class _AddEntryState extends State<AddEntry> {
     }
   }
 
-  String getHour(int hour) {
-    if (hour / 10 < 1) {
-      return '0$hour';
+  String makeDoubleDigit(int num) {
+    if (num / 10 < 1) {
+      return '0$num';
     } else {
-      return hour.toString();
+      return num.toString();
     }
   }
 
   void addNewEntry() {
     String date = '${dateTime.day}${dateTime.month}${dateTime.year}';
-    String time = '${dateTime.hour}:${dateTime.minute}';
+    String time = '${makeDoubleDigit(dateTime.hour)}:${makeDoubleDigit(dateTime.minute)}';
     String bloodSugar = bloodSugarController.text;
     String insulin = insulinController.text;
     String carbs = carbsController.text;
     String comment = commentController.text;
+    List<String> newData = [time, bloodSugar, insulin, carbs, comment];
 
+    if (UserData.userData.containsKey(date) && UserData.userData[date] != null) {
+      List<String> previousValue = (UserData.userData[date] ?? ['error']).toList();
+      UserData.userData[date] = previousValue + newData;
+    } else {
     UserData.userData.addEntries({
       date: [time, bloodSugar, insulin, carbs, comment]
     }.entries);
+  }
 
     Navigator.push(
         context, CupertinoPageRoute(builder: (context) => BreakfastPage()));
@@ -131,6 +137,7 @@ class _AddEntryState extends State<AddEntry> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+        resizeToAvoidBottomInset: false,
         navigationBar: CupertinoNavigationBar(
             backgroundColor: CupertinoColors.systemGrey.withOpacity(0.5),
             middle: const Text(
@@ -212,7 +219,7 @@ class _AddEntryState extends State<AddEntry> {
                                 ),
                               ),
                               child: Text(
-                                  '${getHour(dateTime.hour)}:${dateTime.minute}',
+                                  '${makeDoubleDigit(dateTime.hour)}:${makeDoubleDigit(dateTime.minute)}',
                                   style: const TextStyle(
                                     fontSize: 18,
                                   )),
