@@ -190,7 +190,7 @@ Card dataCard(String date, List<String> dateData) {
   String cardDate = '$day $month $year';
 
   // Finding number of entries for each date
-  double totalEntries = (dateData.length / 5);
+  int totalEntries = dateData.length ~/ 5;
 
   // Creating a card
   return Card(
@@ -221,7 +221,7 @@ Card dataCard(String date, List<String> dateData) {
               // Column Headers
               columnHeaders(),
               // Filling card with formatted user data
-              for (var entry = 0; entry < totalEntries; entry++)
+              for (var entry = totalEntries - 1; entry >= 0; entry--)
                 userDataColumns(
                     dateData[(entry * 5)],
                     dateData[(entry * 5) + 1],
