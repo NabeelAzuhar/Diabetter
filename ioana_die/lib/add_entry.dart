@@ -5,7 +5,8 @@ import 'package:you_wanna_live/breakfast.dart';
 import 'user_data.dart';
 
 class AddEntry extends StatefulWidget {
-  const AddEntry({Key? key}) : super(key: key);
+  const AddEntry({Key? key, required this.mealIndex}) : super(key: key);
+  final int mealIndex;
 
   @override
   State<AddEntry> createState() => _AddEntryState();
@@ -25,7 +26,8 @@ class _AddEntryState extends State<AddEntry> {
     'Dinner',
     'Dessert'
   ];
-  int _selectedMeal = 0;
+  bool selectedMealBool = false;
+  late int selectedMeal;
 
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
@@ -121,13 +123,13 @@ class _AddEntryState extends State<AddEntry> {
     String comment = commentController.text;
     List<String> newData = [time, bloodSugar, insulin, carbs, comment];
 
-    if (UserData.userData[_selectedMeal].containsKey(date) &&
-        UserData.userData[_selectedMeal][date] != null) {
+    if (UserData.userData[selectedMeal].containsKey(date) &&
+        UserData.userData[selectedMeal][date] != null) {
       List<String> previousValue =
-          (UserData.userData[_selectedMeal][date] ?? ['error']).toList();
-      UserData.userData[_selectedMeal][date] = previousValue + newData;
+          (UserData.userData[selectedMeal][date] ?? ['error']).toList();
+      UserData.userData[selectedMeal][date] = previousValue + newData;
     } else {
-      UserData.userData[_selectedMeal].addEntries({
+      UserData.userData[selectedMeal].addEntries({
         date: [time, bloodSugar, insulin, carbs, comment]
       }.entries);
     }
@@ -148,6 +150,10 @@ class _AddEntryState extends State<AddEntry> {
 
   @override
   Widget build(BuildContext context) {
+    if (selectedMealBool == false) {
+      selectedMeal = widget.mealIndex;
+      selectedMealBool = true;
+    }
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         navigationBar: CupertinoNavigationBar(
@@ -197,9 +203,12 @@ class _AddEntryState extends State<AddEntry> {
                                     squeeze: 1.2,
                                     useMagnifier: true,
                                     itemExtent: 32.0,
+                                    scrollController:
+                                        FixedExtentScrollController(
+                                            initialItem: widget.mealIndex),
                                     onSelectedItemChanged: (int selectedItem) {
                                       setState(() {
-                                        _selectedMeal = selectedItem;
+                                        selectedMeal = selectedItem;
                                       });
                                     },
                                     children: List<Widget>.generate(
@@ -211,7 +220,7 @@ class _AddEntryState extends State<AddEntry> {
                                       );
                                     })),
                               ),
-                              child: Text(_mealNames[_selectedMeal],
+                              child: Text(_mealNames[selectedMeal],
                                   style: const TextStyle(
                                     fontSize: 18,
                                   )),

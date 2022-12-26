@@ -16,6 +16,7 @@ class _BreakfastPageState extends State<BreakfastPage> {
 
   @override
   Widget build(BuildContext context) {
+    late int idx;
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           backgroundColor: CupertinoColors.systemGrey.withOpacity(1),
@@ -27,13 +28,18 @@ class _BreakfastPageState extends State<BreakfastPage> {
           trailing: CupertinoButton(
               child: const Icon(CupertinoIcons.add),
               onPressed: () {
-                Navigator.push(context,
-                    CupertinoPageRoute(builder: (context) => const AddEntry()));
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => AddEntry(
+                              mealIndex: idx,
+                            )));
               }),
         ),
         child: PageView.builder(
           itemBuilder: (BuildContext context, int index) {
             String mealName;
+            idx = index;
 
             switch (index) {
               case 0:
