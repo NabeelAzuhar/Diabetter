@@ -17,6 +17,15 @@ class _AddEntryState extends State<AddEntry> {
   final insulinController = TextEditingController();
   final carbsController = TextEditingController();
   final commentController = TextEditingController();
+  final List<String> _mealNames = <String>[
+    'Breakfast',
+    'Morning Tea',
+    'Lunch',
+    'Supper',
+    'Dinner',
+    'Dessert'
+  ];
+  int _selectedMeal = 0;
 
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
@@ -112,13 +121,13 @@ class _AddEntryState extends State<AddEntry> {
     String comment = commentController.text;
     List<String> newData = [time, bloodSugar, insulin, carbs, comment];
 
-    if (UserData.userData[0].containsKey(date) &&
-        UserData.userData[0][date] != null) {
+    if (UserData.userData[_selectedMeal].containsKey(date) &&
+        UserData.userData[_selectedMeal][date] != null) {
       List<String> previousValue =
-          (UserData.userData[0][date] ?? ['error']).toList();
-      UserData.userData[0][date] = previousValue + newData;
+          (UserData.userData[_selectedMeal][date] ?? ['error']).toList();
+      UserData.userData[_selectedMeal][date] = previousValue + newData;
     } else {
-      UserData.userData[0].addEntries({
+      UserData.userData[_selectedMeal].addEntries({
         date: [time, bloodSugar, insulin, carbs, comment]
       }.entries);
     }
@@ -173,6 +182,42 @@ class _AddEntryState extends State<AddEntry> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Meal',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            CupertinoButton(
+                              onPressed: () => _showDialog(
+                                CupertinoPicker(
+                                    magnification: 1.22,
+                                    squeeze: 1.2,
+                                    useMagnifier: true,
+                                    itemExtent: 32.0,
+                                    onSelectedItemChanged: (int selectedItem) {
+                                      setState(() {
+                                        _selectedMeal = selectedItem;
+                                      });
+                                    },
+                                    children: List<Widget>.generate(
+                                        _mealNames.length, (int index) {
+                                      return Center(
+                                        child: Text(
+                                          _mealNames[index],
+                                        ),
+                                      );
+                                    })),
+                              ),
+                              child: Text(_mealNames[_selectedMeal],
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                  )),
+                            ),
+                          ],
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
