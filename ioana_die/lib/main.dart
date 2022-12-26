@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import '/breakfast.dart';
+import 'meals.dart';
 
 void main() => runApp(const MyApp());
 
@@ -22,6 +22,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BreakfastPage();
+    return const MealPage();
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:you_wanna_live/breakfast.dart';
 
 import 'user_data.dart';
 
@@ -13,11 +12,14 @@ class AddEntry extends StatefulWidget {
 }
 
 class _AddEntryState extends State<AddEntry> {
+  // dateTime reflects the current time
   DateTime dateTime = DateTime.now();
+  // initilaizing controllers to collect data
   final bloodSugarController = TextEditingController();
   final insulinController = TextEditingController();
   final carbsController = TextEditingController();
   final commentController = TextEditingController();
+  // initilizing the meal names
   final List<String> _mealNames = <String>[
     'Breakfast',
     'Morning Tea',
@@ -26,9 +28,11 @@ class _AddEntryState extends State<AddEntry> {
     'Dinner',
     'Dessert'
   ];
+  // initilizing two variables to control data flow
   bool selectedMealBool = false;
   late int selectedMeal;
 
+  // A fucntion that creates a popup dialog from the bottom
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
         context: context,
@@ -50,69 +54,7 @@ class _AddEntryState extends State<AddEntry> {
             ));
   }
 
-  String getMonth(int month) {
-    switch (month) {
-      case 1:
-        {
-          return 'January';
-        }
-      case 2:
-        {
-          return 'February';
-        }
-      case 3:
-        {
-          return 'March';
-        }
-      case 4:
-        {
-          return 'April';
-        }
-      case 5:
-        {
-          return 'May';
-        }
-      case 6:
-        {
-          return 'June';
-        }
-      case 7:
-        {
-          return 'July';
-        }
-      case 8:
-        {
-          return 'August';
-        }
-      case 9:
-        {
-          return 'September';
-        }
-      case 10:
-        {
-          return 'October';
-        }
-      case 11:
-        {
-          return 'November';
-        }
-      case 12:
-        {
-          return 'December';
-        }
-      default:
-        return 'Error';
-    }
-  }
-
-  String makeDoubleDigit(int num) {
-    if (num / 10 < 1) {
-      return '0$num';
-    } else {
-      return num.toString();
-    }
-  }
-
+  // A function that creates a pop up alert dialog to ensure that the user has entered their blood sugar levels
   void _showAlertDialog(BuildContext context) {
     showCupertinoModalPopup<void>(
       context: context,
@@ -133,21 +75,27 @@ class _AddEntryState extends State<AddEntry> {
     );
   }
 
+  // A function that records the data entered in the form and updates the userData database
   void addNewEntry() {
-    String date = '${dateTime.day}${dateTime.month}${dateTime.year}';
+    // Extracting data from the form in a format that is consistent with the database
     String time =
         '${makeDoubleDigit(dateTime.hour)}:${makeDoubleDigit(dateTime.minute)}';
     String bloodSugar = bloodSugarController.text;
     String insulin = insulinController.text;
     String carbs = carbsController.text;
     String comment = commentController.text;
+    
+    // Creating a list that reflects the key and value of the map in the database
+    String date = '${dateTime.day}${dateTime.month}${dateTime.year}';
     List<String> newData = [time, bloodSugar, insulin, carbs, comment];
 
+    // Error check that will pop up an Alert Dialog if the blood sugar data is empty
     if (bloodSugar == '') {
       _showAlertDialog(context);
       return;
     }
 
+    // If check to update data if input date is present and to add a new record if the input date is not present
     if (UserData.userData[selectedMeal].containsKey(date) &&
         UserData.userData[selectedMeal][date] != null) {
       List<String> previousValue =
@@ -159,12 +107,13 @@ class _AddEntryState extends State<AddEntry> {
       }.entries);
     }
 
+    // Returns to the meals page while passing along information of which meals page the user is to be directed to
     Navigator.pop(context, selectedMeal);
   }
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
+    // Clean up the controllers when the widget is disposed.
     bloodSugarController.dispose();
     insulinController.dispose();
     carbsController.dispose();
@@ -174,11 +123,13 @@ class _AddEntryState extends State<AddEntry> {
 
   @override
   Widget build(BuildContext context) {
+    // Keeps the selectedMeal value at the value of the page from which the user was directed from
     if (selectedMealBool == false) {
       selectedMeal = widget.mealIndex;
       selectedMealBool = true;
     }
     return CupertinoPageScaffold(
+        // to prevent resizing problems from the occurance of the modal popup window
         resizeToAvoidBottomInset: false,
         navigationBar: CupertinoNavigationBar(
             backgroundColor: CupertinoColors.systemGrey.withOpacity(0.5),
@@ -186,7 +137,9 @@ class _AddEntryState extends State<AddEntry> {
               'Ioanadie?',
               style: TextStyle(fontSize: 20),
             )),
-        child: SafeArea(
+        child: 
+        // Creating the template to fill in user data
+        SafeArea(
           child: Padding(
             padding:
                 const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
@@ -203,6 +156,7 @@ class _AddEntryState extends State<AddEntry> {
                     ),
                   ),
                 ),
+                // One card that contains all the user data inputs followed by a button to submit the data
                 Card(
                   color: CupertinoColors.systemGrey6,
                   shape: RoundedRectangleBorder(
@@ -212,6 +166,7 @@ class _AddEntryState extends State<AddEntry> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Data entry for meal time
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -228,13 +183,16 @@ class _AddEntryState extends State<AddEntry> {
                                     useMagnifier: true,
                                     itemExtent: 32.0,
                                     scrollController:
+                                    // Ensures that the picker begins at the meal time from which the user clicked the add button
                                         FixedExtentScrollController(
                                             initialItem: widget.mealIndex),
+                                    // changes the item as the picker is scrolled
                                     onSelectedItemChanged: (int selectedItem) {
                                       setState(() {
                                         selectedMeal = selectedItem;
                                       });
                                     },
+                                    // list of all the available picker options
                                     children: List<Widget>.generate(
                                         _mealNames.length, (int index) {
                                       return Center(
@@ -244,6 +202,7 @@ class _AddEntryState extends State<AddEntry> {
                                       );
                                     })),
                               ),
+                              // shows currently chosen option on the form
                               child: Text(_mealNames[selectedMeal],
                                   style: const TextStyle(
                                     fontSize: 18,
@@ -251,6 +210,7 @@ class _AddEntryState extends State<AddEntry> {
                             ),
                           ],
                         ),
+                        // Data entry for date
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -271,6 +231,7 @@ class _AddEntryState extends State<AddEntry> {
                                   },
                                 ),
                               ),
+                              // shows currently chosen on the form
                               child: Text(
                                   '${dateTime.day} ${getMonth(dateTime.month)} ${dateTime.year}',
                                   style: const TextStyle(
@@ -279,6 +240,7 @@ class _AddEntryState extends State<AddEntry> {
                             ),
                           ],
                         ),
+                        // Data entry for time
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -299,6 +261,7 @@ class _AddEntryState extends State<AddEntry> {
                                   },
                                 ),
                               ),
+                              // shows currently chosen on the form
                               child: Text(
                                   '${makeDoubleDigit(dateTime.hour)}:${makeDoubleDigit(dateTime.minute)}',
                                   style: const TextStyle(
@@ -307,75 +270,82 @@ class _AddEntryState extends State<AddEntry> {
                             ),
                           ],
                         ),
+                        // Data entry for blood sugar
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Blood Sugar',
+                            const Text('Blood Sugar',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 )),
                             Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                   left: 20, right: 20, top: 10, bottom: 10),
                               child: SizedBox(
                                 width: 100,
                                 child: CupertinoTextField(
                                   controller: bloodSugarController,
+                                  // to allow for only numerical input
                                   keyboardType: TextInputType.number,
                                   maxLength: 4,
-                                  style: TextStyle(fontSize: 18),
+                                  style: const TextStyle(fontSize: 18),
                                 ),
                               ),
                             ),
                           ],
                         ),
+                        // Data entry for insulin level
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Insulin',
+                            const Text('Insulin',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 )),
                             Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                   left: 20, right: 20, top: 10, bottom: 10),
                               child: SizedBox(
                                 width: 100,
                                 child: CupertinoTextField(
                                   controller: insulinController,
+                                  // to allow for only numerical input
                                   keyboardType: TextInputType.number,
                                   maxLength: 4,
-                                  style: TextStyle(fontSize: 18),
+                                  style: const TextStyle(fontSize: 18),
                                 ),
                               ),
                             ),
                           ],
                         ),
+                        // Data entry for carbohydrate intake
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Carbohydrates',
+                            const Text('Carbohydrates',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 )),
                             Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                   left: 20, right: 20, top: 10, bottom: 10),
                               child: SizedBox(
                                 width: 100,
                                 child: CupertinoTextField(
                                   controller: carbsController,
+                                  // to allow for only numerical input
                                   keyboardType: TextInputType.number,
                                   maxLength: 4,
-                                  style: TextStyle(fontSize: 18),
+                                  style: const TextStyle(fontSize: 18),
                                 ),
                               ),
                             ),
                           ],
                         ),
+                        // Data entry for user comments or remarks
                         const Padding(
                           padding: EdgeInsets.only(top: 15, bottom: 15),
                           child: Text('Comments',
@@ -389,13 +359,14 @@ class _AddEntryState extends State<AddEntry> {
                           child: CupertinoTextField(
                             controller: commentController,
                             keyboardType: TextInputType.multiline,
-                            style: TextStyle(fontSize: 18),
+                            style: const TextStyle(fontSize: 18),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
+                // Button to submit data
                 Center(
                   child: Container(
                     width: 300,
@@ -417,5 +388,70 @@ class _AddEntryState extends State<AddEntry> {
             ),
           ),
         ));
+  }
+}
+
+// A function returns a String containing the name of the month for the corresponding month number inputted
+String getMonth(int month) {
+  switch (month) {
+    case 1:
+      {
+        return 'January';
+      }
+    case 2:
+      {
+        return 'February';
+      }
+    case 3:
+      {
+        return 'March';
+      }
+    case 4:
+      {
+        return 'April';
+      }
+    case 5:
+      {
+        return 'May';
+      }
+    case 6:
+      {
+        return 'June';
+      }
+    case 7:
+      {
+        return 'July';
+      }
+    case 8:
+      {
+        return 'August';
+      }
+    case 9:
+      {
+        return 'September';
+      }
+    case 10:
+      {
+        return 'October';
+      }
+    case 11:
+      {
+        return 'November';
+      }
+    case 12:
+      {
+        return 'December';
+      }
+    default:
+      return 'Error';
+  }
+}
+
+// A function that returns a String representation of any one digit number as two digit  numbers
+String makeDoubleDigit(int num) {
+  if (num / 10 < 1) {
+    return '0$num';
+  } else {
+    return num.toString();
   }
 }

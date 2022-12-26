@@ -1,20 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'user_data.dart';
 
+import 'user_data.dart';
 import 'add_entry.dart';
 
-class BreakfastPage extends StatefulWidget {
-  const BreakfastPage({Key? key}) : super(key: key);
+class MealPage extends StatefulWidget {
+  const MealPage({Key? key}) : super(key: key);
   @override
-  State<BreakfastPage> createState() => _BreakfastPageState();
+  State<MealPage> createState() => _MealPageState();
 }
 
-class _BreakfastPageState extends State<BreakfastPage> {
+class _MealPageState extends State<MealPage> {
+  // pagNumber will be used to ensure that the right meal page is loaded
   int pageNumber = 0;
+
   @override
   Widget build(BuildContext context) {
+    // idx ensure the right meal name is fed to the Add Entry page
     late int idx;
+    // returning the layout of the meals page
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           backgroundColor: CupertinoColors.systemGrey.withOpacity(1),
@@ -22,7 +26,9 @@ class _BreakfastPageState extends State<BreakfastPage> {
             'Ioanadie?',
             style: TextStyle(fontSize: 20),
           ),
+          // removes the back button
           automaticallyImplyLeading: false,
+          // implements a plus sign button that will lead to the Add Entry page
           trailing: CupertinoButton(
               child: const Icon(CupertinoIcons.add),
               onPressed: () async {
@@ -35,12 +41,15 @@ class _BreakfastPageState extends State<BreakfastPage> {
                 setState(() {});
               }),
         ),
+        // PageView.builder implements 6 horizontally scrollable pages, each containing a meal
         child: PageView.builder(
           controller: PageController(initialPage: pageNumber),
           itemBuilder: (BuildContext context, int index) {
+            // initilaizing the mealName and idx that will be used to create the cards and pass data to the Add Entry page
             String mealName;
             idx = index;
 
+            // index 0 to 5 corresponds to the six meal times
             switch (index) {
               case 0:
                 mealName = 'Breakfast';
@@ -71,6 +80,7 @@ class _BreakfastPageState extends State<BreakfastPage> {
   }
 }
 
+// A function returns a String containing the name of the month for the corresponding month number inputted
 String getMonth(int month) {
   switch (month) {
     case 1:
@@ -126,6 +136,7 @@ String getMonth(int month) {
   }
 }
 
+// A function that returns a TableRow object containing the date in DD MMM YYYY format
 TableRow dateHeader(int day, String monthYear) {
   return TableRow(children: [
     Row(children: [
@@ -144,8 +155,10 @@ TableRow dateHeader(int day, String monthYear) {
   ]);
 }
 
+// A function that returns a TableRow with all the column headers for the data to be organized in
 TableRow columnHeaders() {
   return const TableRow(children: [
+    // Time in HH:MM format
     Center(
       child: SizedBox(
         height: 20,
@@ -155,24 +168,28 @@ TableRow columnHeaders() {
         ),
       ),
     ),
+    // Blood Sugar
     Center(
       child: Text(
         'Sugar',
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
     ),
+    // Insulin levels
     Center(
       child: Text(
         'Insulin',
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
     ),
+    // Carbohydrate intake
     Center(
       child: Text(
         'Carbs',
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
     ),
+    // Comments or remarks from the user
     Center(
       child: Text(
         'Comments',
@@ -182,6 +199,7 @@ TableRow columnHeaders() {
   ]);
 }
 
+// A function that returns a TableRow containing one entry to the table
 TableRow userDataColumns(time, sugar, insulin, carbs, comment) {
   return TableRow(children: [
     Center(
@@ -200,6 +218,7 @@ TableRow userDataColumns(time, sugar, insulin, carbs, comment) {
   ]);
 }
 
+// A function that returns a Card containing the Date header, the column headers and the entries recorded on that day
 Card dataCard(String date, List<String> dateData) {
   // Formatting the date in the database into the format that will be displayed on the card
   String day = date.substring(0, 2);
@@ -239,7 +258,7 @@ Card dataCard(String date, List<String> dateData) {
             children: [
               // Column Headers
               columnHeaders(),
-              // Filling card with formatted user data
+              // Filling card with formatted user data in reverse order (the latest being at the top)
               for (var entry = totalEntries - 1; entry >= 0; entry--)
                 userDataColumns(
                     dateData[(entry * 5)],
@@ -255,19 +274,23 @@ Card dataCard(String date, List<String> dateData) {
   );
 }
 
+// A function that returns a List of Cards that contain all the days with all the user entries
 List<Widget> userCardsList(int index) {
+  // Creating a List of all the days when entries have been recorded for any meal
   final List dateList = UserData.userData[index].keys.toList();
   List<Widget> cardList = [];
+  // Filling up each card with the date and entries from oldest card to newest card
   for (int i = 0; i < dateList.length; i++) {
     cardList.add(
-        // Text('Hi'));
         dataCard(
             dateList[i], UserData.userData[index][dateList[i]] ?? ['error']));
   }
+  // Reversing the order of the cards so that the latest card is first
   cardList = cardList.reversed.toList();
   return cardList;
 }
 
+// A function that returns a SafeArea which layouts the template upon which the cards will be displayed
 SafeArea mealPage(String meal, int index) {
   return SafeArea(
     child: Padding(
@@ -276,10 +299,10 @@ SafeArea mealPage(String meal, int index) {
           child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 5),
+            padding: const EdgeInsets.only(bottom: 5),
             child: Text(
               meal,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: CupertinoColors.black),
