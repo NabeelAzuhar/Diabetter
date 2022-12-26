@@ -5,13 +5,13 @@ import 'user_data.dart';
 import 'add_entry.dart';
 
 class BreakfastPage extends StatelessWidget {
-  final List dateList = UserData.userData[0].keys.toList();
   final PageController pageController = PageController();
 
   BreakfastPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    int idx = 0;
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           backgroundColor: CupertinoColors.systemGrey.withOpacity(1),
@@ -30,12 +30,12 @@ class BreakfastPage extends StatelessWidget {
         child: PageView(
           controller: pageController,
           children: [
-            mealPage('Breakfast', dateList),
-            mealPage('Morning Tea', dateList),
-            mealPage('Lunch', dateList),
-            mealPage('Supper', dateList),
-            mealPage('Dinner', dateList),
-            mealPage('Dessert', dateList),
+            mealPage('Breakfast', 0),
+            mealPage('Morning Tea', 1),
+            mealPage('Lunch', 2),
+            mealPage('Supper', 3),
+            mealPage('Dinner', 4),
+            mealPage('Dessert', 5),
           ],
         ));
   }
@@ -225,18 +225,20 @@ Card dataCard(String date, List<String> dateData) {
   );
 }
 
-List<Widget> userCardsList(List dateList) {
+List<Widget> userCardsList(int index) {
+  final List dateList = UserData.userData[index].keys.toList();
   List<Widget> cardList = [];
   for (int i = 0; i < dateList.length; i++) {
     cardList.add(
         // Text('Hi'));
-        dataCard(dateList[i], UserData.userData[0][dateList[i]] ?? ['error']));
+        dataCard(
+            dateList[i], UserData.userData[index][dateList[i]] ?? ['error']));
   }
   cardList = cardList.reversed.toList();
   return cardList;
 }
 
-SafeArea mealPage(String meal, List listOfDates) {
+SafeArea mealPage(String meal, int index) {
   return SafeArea(
     child: Padding(
       padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
@@ -256,7 +258,7 @@ SafeArea mealPage(String meal, List listOfDates) {
           SizedBox(
             height: 600,
             child: ListView(
-              children: userCardsList(listOfDates),
+              children: userCardsList(index),
             ),
           ),
         ],
