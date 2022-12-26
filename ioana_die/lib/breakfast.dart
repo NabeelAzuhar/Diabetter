@@ -4,14 +4,18 @@ import 'user_data.dart';
 
 import 'add_entry.dart';
 
-class BreakfastPage extends StatelessWidget {
-  final PageController pageController = PageController();
-
+class BreakfastPage extends StatefulWidget {
   BreakfastPage({Key? key}) : super(key: key);
 
   @override
+  State<BreakfastPage> createState() => _BreakfastPageState();
+}
+
+class _BreakfastPageState extends State<BreakfastPage> {
+  static final PageController pageController = PageController(initialPage: 0);
+
+  @override
   Widget build(BuildContext context) {
-    int idx = 0;
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           backgroundColor: CupertinoColors.systemGrey.withOpacity(1),
@@ -27,16 +31,36 @@ class BreakfastPage extends StatelessWidget {
                     CupertinoPageRoute(builder: (context) => const AddEntry()));
               }),
         ),
-        child: PageView(
-          controller: pageController,
-          children: [
-            mealPage('Breakfast', 0),
-            mealPage('Morning Tea', 1),
-            mealPage('Lunch', 2),
-            mealPage('Supper', 3),
-            mealPage('Dinner', 4),
-            mealPage('Dessert', 5),
-          ],
+        child: PageView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            String mealName;
+
+            switch (index) {
+              case 0:
+                mealName = 'Breakfast';
+                break;
+              case 1:
+                mealName = 'Morning Tea';
+                break;
+              case 2:
+                mealName = 'Lunch';
+                break;
+              case 3:
+                mealName = 'Supper';
+                break;
+              case 4:
+                mealName = 'Dinner';
+                break;
+              case 5:
+                mealName = 'Dessert';
+                break;
+              default:
+                mealName = 'Error';
+            }
+
+            return mealPage(mealName, index);
+          },
+          itemCount: 6,
         ));
   }
 }
