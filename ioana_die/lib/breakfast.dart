@@ -5,7 +5,7 @@ import 'user_data.dart';
 import 'add_entry.dart';
 
 class BreakfastPage extends StatelessWidget {
-  final List dateList = UserData.userData.keys.toList();
+  final List dateList = UserData.userData[0].keys.toList();
   final PageController pageController = PageController();
 
   BreakfastPage({Key? key}) : super(key: key);
@@ -230,7 +230,7 @@ List<Widget> userCardsList(List dateList) {
   for (int i = 0; i < dateList.length; i++) {
     cardList.add(
         // Text('Hi'));
-        dataCard(dateList[i], UserData.userData[dateList[i]] ?? ['error']));
+        dataCard(dateList[i], UserData.userData[0][dateList[i]] ?? ['error']));
   }
   cardList = cardList.reversed.toList();
   return cardList;

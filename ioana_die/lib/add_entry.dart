@@ -104,21 +104,24 @@ class _AddEntryState extends State<AddEntry> {
 
   void addNewEntry() {
     String date = '${dateTime.day}${dateTime.month}${dateTime.year}';
-    String time = '${makeDoubleDigit(dateTime.hour)}:${makeDoubleDigit(dateTime.minute)}';
+    String time =
+        '${makeDoubleDigit(dateTime.hour)}:${makeDoubleDigit(dateTime.minute)}';
     String bloodSugar = bloodSugarController.text;
     String insulin = insulinController.text;
     String carbs = carbsController.text;
     String comment = commentController.text;
     List<String> newData = [time, bloodSugar, insulin, carbs, comment];
 
-    if (UserData.userData.containsKey(date) && UserData.userData[date] != null) {
-      List<String> previousValue = (UserData.userData[date] ?? ['error']).toList();
-      UserData.userData[date] = previousValue + newData;
+    if (UserData.userData[0].containsKey(date) &&
+        UserData.userData[0][date] != null) {
+      List<String> previousValue =
+          (UserData.userData[0][date] ?? ['error']).toList();
+      UserData.userData[0][date] = previousValue + newData;
     } else {
-    UserData.userData.addEntries({
-      date: [time, bloodSugar, insulin, carbs, comment]
-    }.entries);
-  }
+      UserData.userData[0].addEntries({
+        date: [time, bloodSugar, insulin, carbs, comment]
+      }.entries);
+    }
 
     Navigator.push(
         context, CupertinoPageRoute(builder: (context) => BreakfastPage()));
