@@ -9,4 +9,5 @@ The data collected consists of:
 - Carbohydrate intake (in grams)
 - Comments (to record any user remarks)
 
+PS - The project title is an inside joke between friends :D
 
