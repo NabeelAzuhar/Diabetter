@@ -113,6 +113,26 @@ class _AddEntryState extends State<AddEntry> {
     }
   }
 
+  void _showAlertDialog(BuildContext context) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text('Alert'),
+        content: const Text('Please enter your blood sugar level'),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            /// This parameter indicates this action is the default,
+            /// and turns the action's text to bold text.
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void addNewEntry() {
     String date = '${dateTime.day}${dateTime.month}${dateTime.year}';
     String time =
@@ -122,6 +142,11 @@ class _AddEntryState extends State<AddEntry> {
     String carbs = carbsController.text;
     String comment = commentController.text;
     List<String> newData = [time, bloodSugar, insulin, carbs, comment];
+
+    if (bloodSugar == '') {
+      _showAlertDialog(context);
+      return;
+    }
 
     if (UserData.userData[selectedMeal].containsKey(date) &&
         UserData.userData[selectedMeal][date] != null) {
