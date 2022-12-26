@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:you_wanna_live/breakfast.dart';
+// import 'package:you_wanna_live/breakfast.dart';
 
 import 'user_data.dart';
 
@@ -134,8 +134,7 @@ class _AddEntryState extends State<AddEntry> {
       }.entries);
     }
 
-    Navigator.push(
-        context, CupertinoPageRoute(builder: (context) => BreakfastPage()));
+    Navigator.pop(context, selectedMeal);
   }
 
   @override

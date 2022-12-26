@@ -5,15 +5,13 @@ import 'user_data.dart';
 import 'add_entry.dart';
 
 class BreakfastPage extends StatefulWidget {
-  BreakfastPage({Key? key}) : super(key: key);
-
+  const BreakfastPage({Key? key}) : super(key: key);
   @override
   State<BreakfastPage> createState() => _BreakfastPageState();
 }
 
 class _BreakfastPageState extends State<BreakfastPage> {
-  static final PageController pageController = PageController(initialPage: 0);
-
+  int pageNumber = 0;
   @override
   Widget build(BuildContext context) {
     late int idx;
@@ -27,16 +25,18 @@ class _BreakfastPageState extends State<BreakfastPage> {
           automaticallyImplyLeading: false,
           trailing: CupertinoButton(
               child: const Icon(CupertinoIcons.add),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                pageNumber = await Navigator.push(
                     context,
                     CupertinoPageRoute(
                         builder: (context) => AddEntry(
                               mealIndex: idx,
                             )));
+                setState(() {});
               }),
         ),
         child: PageView.builder(
+          controller: PageController(initialPage: pageNumber),
           itemBuilder: (BuildContext context, int index) {
             String mealName;
             idx = index;
