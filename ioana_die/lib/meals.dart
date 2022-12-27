@@ -195,7 +195,13 @@ TableRow columnHeaders() {
         'Comments',
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
-    )
+    ),
+    Center(
+      child: Text(
+        'Delete?',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+    ),
   ]);
 }
 
@@ -215,6 +221,7 @@ TableRow userDataColumns(time, sugar, insulin, carbs, comment) {
       comment,
       textAlign: TextAlign.center,
     )),
+    Center(child: Icon(Icons.delete)),
   ]);
 }
 
@@ -281,9 +288,8 @@ List<Widget> userCardsList(int index) {
   List<Widget> cardList = [];
   // Filling up each card with the date and entries from oldest card to newest card
   for (int i = 0; i < dateList.length; i++) {
-    cardList.add(
-        dataCard(
-            dateList[i], UserData.userData[index][dateList[i]] ?? ['error']));
+    cardList.add(dataCard(
+        dateList[i], UserData.userData[index][dateList[i]] ?? ['error']));
   }
   // Reversing the order of the cards so that the latest card is first
   cardList = cardList.reversed.toList();
