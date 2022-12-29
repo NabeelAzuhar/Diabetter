@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:page_view_indicators/page_view_indicators.dart';
+
 import 'user_data.dart';
 import 'add_entry.dart';
 
@@ -11,8 +13,9 @@ class MealPage extends StatefulWidget {
 }
 
 class _MealPageState extends State<MealPage> {
-  // pagNumber will be used to ensure that the right meal page is loaded
+  // pageNumber will be used to ensure that the right meal page is loaded
   int pageNumber = 0;
+  final _currentPageNotifier = ValueNotifier<int>(0);
 
   // A function that returns a TableRow object containing the date in DD MMM YYYY format
   TableRow dateHeader(int day, String monthYear) {
@@ -104,8 +107,7 @@ class _MealPageState extends State<MealPage> {
   TableRow userDataColumns(
       int index, String date, time, sugar, insulin, carbs, comment) {
     return TableRow(
-        decoration: BoxDecoration(
-          // borderRadius: BorderRadius.circular(10),
+        decoration: const BoxDecoration(
           color: CupertinoColors.systemGrey5,
         ),
         children: [
@@ -155,7 +157,7 @@ class _MealPageState extends State<MealPage> {
                   oldData.removeRange(i, i + 5);
                   if (oldData.isEmpty) {
                     UserData.userData[index].remove(date);
-                  } else{
+                  } else {
                     UserData.userData[index][date] = oldData;
                   }
                   break;
@@ -260,7 +262,7 @@ class _MealPageState extends State<MealPage> {
   }
 
 // A function that returns a SafeArea which layouts the template upon which the cards will be displayed
-  SafeArea mealPage(String meal, int index) {
+  SafeArea mealPage(String meal, int index, PageController controller) {
     return SafeArea(
       child: Padding(
         padding:
@@ -284,6 +286,14 @@ class _MealPageState extends State<MealPage> {
                 children: userCardsList(index),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CirclePageIndicator(
+                currentPageNotifier: _currentPageNotifier,
+                itemCount: 6,
+                selectedSize: 10,
+              ),
+            ),
           ],
         )),
       ),
@@ -294,6 +304,8 @@ class _MealPageState extends State<MealPage> {
   Widget build(BuildContext context) {
     // idx ensure the right meal name is fed to the Add Entry page
     late int idx;
+    // instantiating the controller for PageView
+    PageController pageController = PageController(initialPage: pageNumber);
     // returning the layout of the meals page
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
@@ -319,7 +331,7 @@ class _MealPageState extends State<MealPage> {
         ),
         // PageView.builder implements 6 horizontally scrollable pages, each containing a meal
         child: PageView.builder(
-          controller: PageController(initialPage: pageNumber),
+          controller: pageController,
           itemBuilder: (BuildContext context, int index) {
             // initilaizing the mealName and idx that will be used to create the cards and pass data to the Add Entry page
             String mealName;
@@ -349,9 +361,12 @@ class _MealPageState extends State<MealPage> {
                 mealName = 'Error';
             }
 
-            return mealPage(mealName, index);
+            return mealPage(mealName, index, pageController);
           },
           itemCount: 6,
+          onPageChanged: (int index) {
+            _currentPageNotifier.value = index;
+          },
         ));
   }
 }
