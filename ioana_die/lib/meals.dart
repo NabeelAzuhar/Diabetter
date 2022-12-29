@@ -14,6 +14,247 @@ class _MealPageState extends State<MealPage> {
   // pagNumber will be used to ensure that the right meal page is loaded
   int pageNumber = 0;
 
+  // A function that returns a TableRow object containing the date in DD MMM YYYY format
+  TableRow dateHeader(int day, String monthYear) {
+    return TableRow(children: [
+      Row(children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            height: 20,
+            width: 40,
+            child: Center(
+              child: Text(day.toString()),
+            ),
+          ),
+        ),
+        Text(monthYear)
+      ])
+    ]);
+  }
+
+// A function that returns a TableRow with all the column headers for the data to be organized in
+  TableRow columnHeaders() {
+    return const TableRow(children: [
+      // Time in HH:MM format
+      Center(
+        child: SizedBox(
+          height: 20,
+          child: Text(
+            'Time',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+      // Blood Sugar
+      Center(
+        child: Text(
+          'Sugar',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      // Insulin levels
+      Center(
+        child: Text(
+          'Insulin',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      // Carbohydrate intake
+      Center(
+        child: Text(
+          'Carbs',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      // Comments or remarks from the user
+      Center(
+        child: Text(
+          'Comments',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      Center(
+        child: Text(
+          'Delete?',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    ]);
+  }
+
+// A function that returns a TableRow containing one entry to the table
+  TableRow userDataColumns(
+      int index, String date, time, sugar, insulin, carbs, comment) {
+    return TableRow(children: [
+      Center(
+          child: SizedBox(
+        height: 20,
+        child: Text(time),
+      )),
+      Center(child: Text(sugar)),
+      Center(child: Text(insulin)),
+      Center(child: Text(carbs)),
+      Center(
+          child: Text(
+        comment,
+        textAlign: TextAlign.center,
+      )),
+      Center(
+          child: CupertinoButton(
+              onPressed: () {
+                deleteRow(index, date, [time, sugar, insulin, carbs, comment]);
+              },
+              child: const Icon(Icons.delete))),
+    ]);
+  }
+
+  void deleteRow(int index, String date, List currentData) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text('Alert'),
+        content: const Text('Are you sure you want to delete this entry?'),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            /// This parameter indicates this action is the default,
+            /// and turns the action's text to bold text.
+            onPressed: () {
+              List<String> oldData = UserData.userData[index][date]!;
+              for (int i = 0; i < oldData.length; i = i + 5) {
+                if (oldData[i] == currentData[0] &&
+                    oldData[i + 1] == currentData[1] &&
+                    oldData[i + 2] == currentData[2] &&
+                    oldData[i + 3] == currentData[3] &&
+                    oldData[i + 4] == currentData[4]) {
+                  oldData.removeRange(i, i + 5);
+                  UserData.userData[index][date] = oldData;
+                  break;
+                }
+              }
+              setState(() {});
+              Navigator.pop(context);
+            },
+            child: const Text('Yes'),
+          ),
+          CupertinoDialogAction(
+            /// This parameter indicates this action is the default,
+            /// and turns the action's text to bold text.
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('No'),
+          ),
+        ],
+      ),
+    );
+  }
+
+// A function that returns a Card containing the Date header, the column headers and the entries recorded on that day
+  Card dataCard(int index, String date, List<String> dateData) {
+    // Formatting the date in the database into the format that will be displayed on the card
+    String day = date.substring(0, 2);
+    String month = date.substring(2, 4);
+    month = getMonth(int.parse(month));
+    String year = date.substring(4);
+    String cardDate = '$day $month $year';
+
+    // Finding number of entries for each date
+    int totalEntries = dateData.length ~/ 5;
+
+    // Creating a card
+    return Card(
+      // Card design
+      color: CupertinoColors.systemGrey6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 5),
+            child: Text(
+              cardDate,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Table(
+              columnWidths: const {
+                0: FlexColumnWidth(1),
+                1: FlexColumnWidth(1),
+                2: FlexColumnWidth(1),
+                3: FlexColumnWidth(1),
+                4: FlexColumnWidth(2),
+              },
+              children: [
+                // Column Headers
+                columnHeaders(),
+                // Filling card with formatted user data in reverse order (the latest being at the top)
+                for (var entry = totalEntries - 1; entry >= 0; entry--)
+                  userDataColumns(
+                      index,
+                      date,
+                      dateData[(entry * 5)],
+                      dateData[(entry * 5) + 1],
+                      dateData[(entry * 5) + 2],
+                      dateData[(entry * 5) + 3],
+                      dateData[(entry * 5) + 4]),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+// A function that returns a List of Cards that contain all the days with all the user entries
+  List<Widget> userCardsList(int index) {
+    // Creating a List of all the days when entries have been recorded for any meal
+    final List dateList = UserData.userData[index].keys.toList();
+    List<Widget> cardList = [];
+    // Filling up each card with the date and entries from oldest card to newest card
+    for (int i = 0; i < dateList.length; i++) {
+      cardList.add(dataCard(index, dateList[i],
+          UserData.userData[index][dateList[i]] ?? ['error']));
+    }
+    // Reversing the order of the cards so that the latest card is first
+    cardList = cardList.reversed.toList();
+    return cardList;
+  }
+
+// A function that returns a SafeArea which layouts the template upon which the cards will be displayed
+  SafeArea mealPage(String meal, int index) {
+    return SafeArea(
+      child: Padding(
+        padding:
+            const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
+        child: Center(
+            child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(
+                meal,
+                style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.black),
+              ),
+            ),
+            SizedBox(
+              height: 600,
+              child: ListView(
+                children: userCardsList(index),
+              ),
+            ),
+          ],
+        )),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // idx ensure the right meal name is fed to the Add Entry page
@@ -134,194 +375,4 @@ String getMonth(int month) {
     default:
       return 'Error';
   }
-}
-
-// A function that returns a TableRow object containing the date in DD MMM YYYY format
-TableRow dateHeader(int day, String monthYear) {
-  return TableRow(children: [
-    Row(children: [
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SizedBox(
-          height: 20,
-          width: 40,
-          child: Center(
-            child: Text(day.toString()),
-          ),
-        ),
-      ),
-      Text(monthYear)
-    ])
-  ]);
-}
-
-// A function that returns a TableRow with all the column headers for the data to be organized in
-TableRow columnHeaders() {
-  return const TableRow(children: [
-    // Time in HH:MM format
-    Center(
-      child: SizedBox(
-        height: 20,
-        child: Text(
-          'Time',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-    ),
-    // Blood Sugar
-    Center(
-      child: Text(
-        'Sugar',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ),
-    // Insulin levels
-    Center(
-      child: Text(
-        'Insulin',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ),
-    // Carbohydrate intake
-    Center(
-      child: Text(
-        'Carbs',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ),
-    // Comments or remarks from the user
-    Center(
-      child: Text(
-        'Comments',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ),
-    Center(
-      child: Text(
-        'Delete?',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ),
-  ]);
-}
-
-// A function that returns a TableRow containing one entry to the table
-TableRow userDataColumns(time, sugar, insulin, carbs, comment) {
-  return TableRow(children: [
-    Center(
-        child: SizedBox(
-      height: 20,
-      child: Text(time),
-    )),
-    Center(child: Text(sugar)),
-    Center(child: Text(insulin)),
-    Center(child: Text(carbs)),
-    Center(
-        child: Text(
-      comment,
-      textAlign: TextAlign.center,
-    )),
-    Center(child: Icon(Icons.delete)),
-  ]);
-}
-
-// A function that returns a Card containing the Date header, the column headers and the entries recorded on that day
-Card dataCard(String date, List<String> dateData) {
-  // Formatting the date in the database into the format that will be displayed on the card
-  String day = date.substring(0, 2);
-  String month = date.substring(2, 4);
-  month = getMonth(int.parse(month));
-  String year = date.substring(4);
-  String cardDate = '$day $month $year';
-
-  // Finding number of entries for each date
-  int totalEntries = dateData.length ~/ 5;
-
-  // Creating a card
-  return Card(
-    // Card design
-    color: CupertinoColors.systemGrey6,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 5),
-          child: Text(
-            cardDate,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Table(
-            columnWidths: const {
-              0: FlexColumnWidth(1),
-              1: FlexColumnWidth(1),
-              2: FlexColumnWidth(1),
-              3: FlexColumnWidth(1),
-              4: FlexColumnWidth(2),
-            },
-            children: [
-              // Column Headers
-              columnHeaders(),
-              // Filling card with formatted user data in reverse order (the latest being at the top)
-              for (var entry = totalEntries - 1; entry >= 0; entry--)
-                userDataColumns(
-                    dateData[(entry * 5)],
-                    dateData[(entry * 5) + 1],
-                    dateData[(entry * 5) + 2],
-                    dateData[(entry * 5) + 3],
-                    dateData[(entry * 5) + 4]),
-            ],
-          ),
-        )
-      ],
-    ),
-  );
-}
-
-// A function that returns a List of Cards that contain all the days with all the user entries
-List<Widget> userCardsList(int index) {
-  // Creating a List of all the days when entries have been recorded for any meal
-  final List dateList = UserData.userData[index].keys.toList();
-  List<Widget> cardList = [];
-  // Filling up each card with the date and entries from oldest card to newest card
-  for (int i = 0; i < dateList.length; i++) {
-    cardList.add(dataCard(
-        dateList[i], UserData.userData[index][dateList[i]] ?? ['error']));
-  }
-  // Reversing the order of the cards so that the latest card is first
-  cardList = cardList.reversed.toList();
-  return cardList;
-}
-
-// A function that returns a SafeArea which layouts the template upon which the cards will be displayed
-SafeArea mealPage(String meal, int index) {
-  return SafeArea(
-    child: Padding(
-      padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
-      child: Center(
-          child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 5),
-            child: Text(
-              meal,
-              style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.black),
-            ),
-          ),
-          SizedBox(
-            height: 600,
-            child: ListView(
-              children: userCardsList(index),
-            ),
-          ),
-        ],
-      )),
-    ),
-  );
 }
