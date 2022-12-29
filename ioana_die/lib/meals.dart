@@ -37,76 +37,101 @@ class _MealPageState extends State<MealPage> {
   TableRow columnHeaders() {
     return const TableRow(children: [
       // Time in HH:MM format
-      Center(
+      TableCell(
+          child: Center(
         child: SizedBox(
-          height: 20,
+          height: 22,
           child: Text(
             'Time',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-      ),
+      )),
       // Blood Sugar
-      Center(
-        child: Text(
-          'Sugar',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+      TableCell(
+        child: Center(
+            child: SizedBox(
+          height: 22,
+          child: Text(
+            'Sugar',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        )),
       ),
       // Insulin levels
-      Center(
-        child: Text(
-          'Insulin',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+      TableCell(
+        child: Center(
+            child: SizedBox(
+                height: 22,
+                child: Text(
+                  'Insulin',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ))),
       ),
       // Carbohydrate intake
-      Center(
-        child: Text(
-          'Carbs',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+      TableCell(
+        child: Center(
+            child: SizedBox(
+                height: 22,
+                child: Text(
+                  'Carbs',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ))),
       ),
       // Comments or remarks from the user
-      Center(
-        child: Text(
-          'Comments',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      Center(
+      TableCell(
+          child: Center(
+              child: SizedBox(
+                  height: 22,
+                  child: Text(
+                    'Comments',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )))),
+      // Delete?
+      TableCell(
+          child: Center(
+              child: SizedBox(
+        height: 22,
         child: Text(
           'Delete?',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-      ),
+      ))),
     ]);
   }
 
 // A function that returns a TableRow containing one entry to the table
   TableRow userDataColumns(
       int index, String date, time, sugar, insulin, carbs, comment) {
-    return TableRow(children: [
-      Center(
-          child: SizedBox(
-        height: 20,
-        child: Text(time),
-      )),
-      Center(child: Text(sugar)),
-      Center(child: Text(insulin)),
-      Center(child: Text(carbs)),
-      Center(
-          child: Text(
-        comment,
-        textAlign: TextAlign.center,
-      )),
-      Center(
-          child: CupertinoButton(
+    return TableRow(
+        decoration: BoxDecoration(
+          // borderRadius: BorderRadius.circular(10),
+          color: CupertinoColors.systemGrey5,
+        ),
+        children: [
+          TableCell(
+            child: Center(child: Text(time)),
+          ),
+          TableCell(child: Center(child: Text(sugar))),
+          TableCell(child: Center(child: Text(insulin))),
+          TableCell(child: Center(child: Text(carbs))),
+          TableCell(
+            child: Center(
+                child: Text(
+              comment,
+              textAlign: TextAlign.center,
+            )),
+          ),
+          TableCell(
+            child: Center(
+                child: IconButton(
               onPressed: () {
                 deleteRow(index, date, [time, sugar, insulin, carbs, comment]);
               },
-              child: const Icon(Icons.delete))),
-    ]);
+              icon: const Icon(CupertinoIcons.delete, size: 20),
+            )),
+          )
+        ]);
   }
 
   void deleteRow(int index, String date, List currentData) {
@@ -128,7 +153,11 @@ class _MealPageState extends State<MealPage> {
                     oldData[i + 3] == currentData[3] &&
                     oldData[i + 4] == currentData[4]) {
                   oldData.removeRange(i, i + 5);
-                  UserData.userData[index][date] = oldData;
+                  if (oldData.isEmpty) {
+                    UserData.userData[index].remove(date);
+                  } else{
+                    UserData.userData[index][date] = oldData;
+                  }
                   break;
                 }
               }
@@ -181,12 +210,18 @@ class _MealPageState extends State<MealPage> {
           Padding(
             padding: const EdgeInsets.all(5.0),
             child: Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              // border: const TableBorder(
+              //   horizontalInside:
+              //       BorderSide(width: 1, color: CupertinoColors.systemGrey),
+              // ),
               columnWidths: const {
                 0: FlexColumnWidth(1),
                 1: FlexColumnWidth(1),
                 2: FlexColumnWidth(1),
                 3: FlexColumnWidth(1),
                 4: FlexColumnWidth(2),
+                5: FlexColumnWidth(1),
               },
               children: [
                 // Column Headers
